@@ -38,7 +38,8 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 
-public class CodePane extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
+public class CodePane extends JPanel implements MouseListener,
+		MouseMotionListener, KeyListener {
 	public SimpleDocument doc = new SimpleDocument();
 	public int selectionStart = 0;
 	public int selectionEnd = 0;
@@ -49,9 +50,10 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 	public Insets getMargin() {
 		return new Insets(5, 5, 5, 5);
 	}
-	public Point getSelectionYEnds(){
-		int sS=Math.min(selectionStart, selectionEnd);
-		int sE=Math.max(selectionStart, selectionEnd);
+
+	public Point getSelectionYEnds() {
+		int sS = Math.min(selectionStart, selectionEnd);
+		int sE = Math.max(selectionStart, selectionEnd);
 		double lineStartY = this.getMargin().top;
 		boolean selectedLine = false;
 		double lineEndY = this.getMargin().top;
@@ -65,8 +67,8 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		// this.
 		// this.setLocation(50, 0);
 		// System.out.println("paint");
-		//super.paint(g);
-		
+		// super.paint(g);
+
 		// g.drawLine(0,0,mousePos.x,mousePos.y);
 		int line = 1;
 		double lineY = this.getFontMetrics(this.getFont()).getHeight();
@@ -75,102 +77,123 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		double charX = 50;
 
 		if (sE == 0) {
-			caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + 50),
-					(int) (this.getMargin().top + this.getFontMetrics(this.getFont()).getDescent()));
+			caretPos2 = new Point((int) (this.getMargin().left
+					+ this.getInsets().left + 50),
+					(int) (this.getMargin().top + this.getFontMetrics(
+							this.getFont()).getDescent()));
 			selectedLine = true;
 		}
 		// this.getDocument().
-		
+
 		for (int i = 0; i < this.doc.doc.size(); i++) {
 
 			Character c = this.doc.doc.get(i);
 
 			if (new Character(c).equals(new Character('\n'))) {
-				if (i < Math.max(selectionStart, selectionEnd) && i > Math.min(selectionStart, selectionEnd) - 1) {
-					
+				if (i < Math.max(selectionStart, selectionEnd)
+						&& i > Math.min(selectionStart, selectionEnd) - 1) {
+
 				}
 				lineEndY = lineY;
 				if (selectedLine) {
 
-					
 					selectedLine = false;
 				}
 				lineStartY = lineY;
 				line++;
 				lineY += this.getFontMetrics(this.getFont()).getHeight();
 				charX = 50;
-				if (sE== i + 1) {
+				if (sE == i + 1) {
 					selectedLine = true;
-					caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY 
-									+ this.getFontMetrics(this.getFont()).getDescent()));
+					caretPos2 = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top + lineY + this
+									.getFontMetrics(this.getFont())
+									.getDescent()));
 
 				}
-				if (sS== i + 1) {
+				if (sS == i + 1) {
 					selectedLine = true;
-					caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY - this.getFontMetrics(this.getFont()).getHeight()
-									+ this.getFontMetrics(this.getFont()).getDescent()));
+					caretPos2 = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top
+									+ lineY
+									- this.getFontMetrics(this.getFont())
+											.getHeight() + this.getFontMetrics(
+									this.getFont()).getDescent()));
 
 				}
 			} else {
-				if (charX + this.getFontMetrics(this.getFont()).charWidth(c) < this.getWidth() - this.getMargin().right) {
+				if (charX + this.getFontMetrics(this.getFont()).charWidth(c) < this
+						.getWidth() - this.getMargin().right) {
 
 				} else {
 					lineY += this.getFontMetrics(this.getFont()).getHeight();
 					charX = 50;
 				}
-				if (i < Math.max(selectionStart, selectionEnd) && i > Math.min(selectionStart, selectionEnd) - 1) {
-					
+				if (i < Math.max(selectionStart, selectionEnd)
+						&& i > Math.min(selectionStart, selectionEnd) - 1) {
+
 				}
-				
 
 				charX += this.getFontMetrics(this.getFont()).charWidth(c);
-				
+
 				if (sE == i + 1) {
 
-					caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY 
-									+ this.getFontMetrics(this.getFont()).getDescent()));
+					caretPos2 = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top + lineY + this
+									.getFontMetrics(this.getFont())
+									.getDescent()));
 
 				}
 				if (sS == i + 1) {
 
-					caretPos = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY - this.getFontMetrics(this.getFont()).getHeight()
-									+ this.getFontMetrics(this.getFont()).getDescent()));
+					caretPos = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top
+									+ lineY
+									- this.getFontMetrics(this.getFont())
+											.getHeight() + this.getFontMetrics(
+									this.getFont()).getDescent()));
 
 				}
 				charInLine++;
 			}
 		}
-		if (sE== this.doc.doc.size()) {
+		if (sE == this.doc.doc.size()) {
 			selectedLine = true;
-			caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-					(int) (this.getMargin().top + lineY 
-							+ this.getFontMetrics(this.getFont()).getDescent()));
+			caretPos2 = new Point((int) (this.getMargin().left
+					+ this.getInsets().left + charX),
+					(int) (this.getMargin().top + lineY + this.getFontMetrics(
+							this.getFont()).getDescent()));
 
 		}
-		if (sS== this.doc.doc.size()) {
+		if (sS == this.doc.doc.size()) {
 			selectedLine = true;
-			caretPos2 = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-					(int) (this.getMargin().top + lineY - this.getFontMetrics(this.getFont()).getHeight()
-							+ this.getFontMetrics(this.getFont()).getDescent()));
+			caretPos2 = new Point(
+					(int) (this.getMargin().left + this.getInsets().left + charX),
+					(int) (this.getMargin().top + lineY
+							- this.getFontMetrics(this.getFont()).getHeight() + this
+							.getFontMetrics(this.getFont()).getDescent()));
 
 		}
-		return new Point(caretPos.y,caretPos2.y);
+		return new Point(caretPos.y, caretPos2.y);
 	}
 
 	public CodePane() {
 		try {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("primer.ttf")));
+			GraphicsEnvironment ge = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(
+					"primer.ttf")));
 		} catch (IOException | FontFormatException e) {
 			// Handle exception
 		}
 		// this.addKeyListener(this);
 		try {
-			this.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("ProFont.ttf")).deriveFont(Font.PLAIN, 20));
+			this.setFont(Font.createFont(Font.TRUETYPE_FONT,
+					new File("ProFont.ttf")).deriveFont(Font.PLAIN, 20));
 		} catch (FontFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,12 +225,14 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 	}
 
 	public void paint(Graphics g) {
-		double lineStartY = this.getMargin().top;
+		double lineStartY = this.getMargin().top
+				+ this.getFontMetrics(this.getFont()).getDescent();
 		boolean selectedLine = false;
 		double lineEndY = this.getMargin().top;
 		Point caretPos = new Point(0, 0);
-		double lineNumberAlignment=new String(lineCount()+"").length()*g.getFontMetrics().stringWidth("0");
-		System.out.println(new String(lineCount()+"").length());
+		double lineNumberAlignment = new String(lineCount() + "").length()
+				* g.getFontMetrics().stringWidth("0");
+		// System.out.println(new String(lineCount()+"").length());
 		// System.out.println(this.getBounds());
 		this.setBackground(Color.decode("#fdf6e3"));
 		if (this.isFocusOwner()) {
@@ -218,8 +243,10 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		// System.out.println("paint");
 		super.paint(g);
 		Graphics2D g2 = (Graphics2D) g;
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		// g.setColor(Color.WHITE);
 		// g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		g2.setColor(Color.decode("#657b83"));
@@ -231,70 +258,96 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		double charX = 50;
 
 		if (selectionEnd == 0) {
-			caretPos = new Point((int) (this.getMargin().left + this.getInsets().left + 50),
-					(int) (this.getMargin().top + g2.getFontMetrics().getDescent()));
+			caretPos = new Point((int) (this.getMargin().left
+					+ this.getInsets().left + 50),
+					(int) (this.getMargin().top + g2.getFontMetrics()
+							.getDescent()));
 			selectedLine = true;
 		}
 		// this.getDocument().
-		g2.drawString(line + "", (int) (this.getMargin().left + this.getInsets().left+lineNumberAlignment/2-g.getFontMetrics().stringWidth(line + "")+25),
+		g2.drawString(line + "",
+				(int) (this.getMargin().left + this.getInsets().left
+						+ lineNumberAlignment / 2
+						- g.getFontMetrics().stringWidth(line + "") + 25),
 				(int) (lineY + this.getMargin().top));
 		for (int i = 0; i < this.doc.doc.size(); i++) {
 
 			Character c = this.doc.doc.get(i);
 
 			if (new Character(c).equals(new Character('\n'))) {
-				if (i < Math.max(selectionStart, selectionEnd) && i > Math.min(selectionStart, selectionEnd) - 1) {
+				if (i < Math.max(selectionStart, selectionEnd)
+						&& i > Math.min(selectionStart, selectionEnd) - 1) {
 					g2.setColor(Color.decode("#eee8d5"));
-					g2.fillRect((int) (charX + this.getMargin().left + this.getInsets().left),
-							(int) (lineY + this.getMargin().top - g2.getFontMetrics().getHeight()
-									+ g2.getFontMetrics().getDescent()),
-							5, g2.getFontMetrics().getHeight());
+					g2.fillRect((int) (charX + this.getMargin().left + this
+							.getInsets().left), (int) (lineY
+							+ this.getMargin().top
+							- g2.getFontMetrics().getHeight() + g2
+							.getFontMetrics().getDescent()), 5, g2
+							.getFontMetrics().getHeight());
 				}
-				lineEndY = lineY;
+				lineEndY = (int) (lineY + this.getMargin().top + g2
+						.getFontMetrics().getDescent());
 				if (selectedLine) {
 
 					g2.setColor(Color.decode("#eee8d5"));
 					g2.fillRect(
-							(int) (this.getMargin().left + this.getInsets().left), (int) (lineY + this.getMargin().top
-									- g2.getFontMetrics().getHeight() + g2.getFontMetrics().getDescent()),
-							45, g2.getFontMetrics().getHeight());
+							(int) (this.getMargin().left + this.getInsets().left),
+							(int) lineStartY, 45, (int) (lineEndY - lineStartY));
 
 					g2.setColor(Color.decode("#657b83"));
-					g2.drawString(line + "", (int) (this.getMargin().left + this.getInsets().left+lineNumberAlignment/2-g.getFontMetrics().stringWidth(line + "")+25),
-							(int) (lineY + this.getMargin().top));
+					g2.drawString(line + "", (int) (this.getMargin().left
+							+ this.getInsets().left + lineNumberAlignment / 2
+							- g.getFontMetrics().stringWidth(line + "") + 25),
+							(int) (lineStartY - (-g2.getFontMetrics()
+									.getHeight() + g2.getFontMetrics()
+									.getDescent())));
 					selectedLine = false;
 				}
-				lineStartY = lineY;
+				lineStartY = (int) (lineY + this.getMargin().top + g2
+						.getFontMetrics().getDescent());
 				line++;
 				lineY += g.getFontMetrics().getHeight();
 				charX = 50;
 				if (selectionEnd == i + 1) {
 					selectedLine = true;
-					caretPos = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY - g2.getFontMetrics().getHeight()
-									+ g2.getFontMetrics().getDescent()));
+					caretPos = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top + lineY
+									- g2.getFontMetrics().getHeight() + g2
+									.getFontMetrics().getDescent()));
 
 				}
 				g2.setColor(Color.decode("#657b83"));
-				g2.drawString(line + "", (int) (this.getMargin().left + this.getInsets().left+lineNumberAlignment/2-g.getFontMetrics().stringWidth(line + "")+25),
+				g2.drawString(
+						line + "",
+						(int) (this.getMargin().left + this.getInsets().left
+								+ lineNumberAlignment / 2
+								- g.getFontMetrics().stringWidth(line + "") + 25),
 						(int) (lineY + this.getMargin().top));
 			} else {
-				if (charX + g2.getFontMetrics().charWidth(c) < this.getWidth() - this.getMargin().right) {
+				if (charX + g2.getFontMetrics().charWidth(c) < this.getWidth()
+						- this.getMargin().right) {
 
 				} else {
 					lineY += g2.getFontMetrics().getHeight();
 					charX = 50;
 				}
-				if (i < Math.max(selectionStart, selectionEnd) && i > Math.min(selectionStart, selectionEnd) - 1) {
+				if (i < Math.max(selectionStart, selectionEnd)
+						&& i > Math.min(selectionStart, selectionEnd) - 1) {
 					g2.setColor(Color.decode("#eee8d5"));
-					g2.fillRect((int) (charX + this.getMargin().left + this.getInsets().left),
-							(int) (lineY + this.getMargin().top - g2.getFontMetrics().getHeight()
-									+ g2.getFontMetrics().getDescent()),
-							g2.getFontMetrics().charWidth(c), g2.getFontMetrics().getHeight());
+					g2.fillRect((int) (charX + this.getMargin().left + this
+							.getInsets().left), (int) (lineY
+							+ this.getMargin().top
+							- g2.getFontMetrics().getHeight() + g2
+							.getFontMetrics().getDescent()), g2
+							.getFontMetrics().charWidth(c), g2.getFontMetrics()
+							.getHeight());
 				}
 				g2.setColor(Color.decode("#657b83"));
-				
-				g2.drawString(c + "", (int) (charX + this.getMargin().left + this.getInsets().left),
+
+				g2.drawString(
+						c + "",
+						(int) (charX + this.getMargin().left + this.getInsets().left),
 						(int) (lineY + this.getMargin().top));
 
 				charX += g2.getFontMetrics().charWidth(c);
@@ -303,9 +356,11 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 				}
 				if (selectionEnd == i + 1) {
 
-					caretPos = new Point((int) (this.getMargin().left + this.getInsets().left + charX),
-							(int) (this.getMargin().top + lineY - g2.getFontMetrics().getHeight()
-									+ g2.getFontMetrics().getDescent()));
+					caretPos = new Point((int) (this.getMargin().left
+							+ this.getInsets().left + charX),
+							(int) (this.getMargin().top + lineY
+									- g2.getFontMetrics().getHeight() + g2
+									.getFontMetrics().getDescent()));
 
 				}
 				charInLine++;
@@ -313,24 +368,35 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		}
 		lineEndY = lineY;
 		if (selectedLine) {
+			lineEndY = (int) (lineY + this.getMargin().top + g2
+					.getFontMetrics().getDescent());
+			if (selectedLine) {
 
-			g2.setColor(Color.decode("#eee8d5"));
-			g2.fillRect(
-					(int) (this.getMargin().left + this.getInsets().left), (int) (lineY + this.getMargin().top
-							- g2.getFontMetrics().getHeight() + g2.getFontMetrics().getDescent()),
-					45, g2.getFontMetrics().getHeight());
+				g2.setColor(Color.decode("#eee8d5"));
+				g2.fillRect(
+						(int) (this.getMargin().left + this.getInsets().left),
+						(int) lineStartY, 45, (int) (lineEndY - lineStartY));
 
-			g2.setColor(Color.decode("#657b83"));
-			g2.drawString(line + "", (int) (this.getMargin().left + this.getInsets().left+lineNumberAlignment/2-g.getFontMetrics().stringWidth(line + "")+25),
-					(int) (lineY + this.getMargin().top));
+				g2.setColor(Color.decode("#657b83"));
+				g2.drawString(
+						line + "",
+						(int) (this.getMargin().left + this.getInsets().left
+								+ lineNumberAlignment / 2
+								- g.getFontMetrics().stringWidth(line + "") + 25),
+						(int) (lineStartY - (-g2.getFontMetrics().getHeight() + g2
+								.getFontMetrics().getDescent())));
+				selectedLine = false;
+			}
 			selectedLine = false;
 		}
 		g2.setColor(Color.decode("#657b83"));
 		if (cursorTimer.value == 1) {
-			g2.fillRect(caretPos.x, caretPos.y, 2, g2.getFontMetrics().getHeight());
+			g2.fillRect(caretPos.x, caretPos.y, 2, g2.getFontMetrics()
+					.getHeight());
 		}
-		this.setPreferredSize(
-				new Dimension(100, Math.max((int) (lineY + this.getMargin().top + this.getMargin().bottom), 100)));
+		this.setPreferredSize(new Dimension(100, Math.max(
+				(int) (lineY + this.getMargin().top + this.getMargin().bottom),
+				100)));
 		this.revalidate();
 
 		// this.getParent().p
@@ -385,13 +451,41 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 	public void mouseDragged(MouseEvent arg0) {
 		this.selectionEnd = getTextPosFromCursor(arg0);
 		this.repaint();
+		this.repaint();
+		if (this.scroller != null) {
+			System.out.println(this.scroller.getVerticalScrollBar()
+					.getVisibleAmount());
+			int selectionEndY=this.selectionEnd<this.selectionStart?getSelectionYEnds().x:getSelectionYEnds().y-this.getFontMetrics(this.getFont())
+					.getHeight();
+			if ((this.selectionEnd<this.selectionStart?getSelectionYEnds().x:getSelectionYEnds().y-this.getFontMetrics(this.getFont())
+					.getHeight()) < this.scroller.getVerticalScrollBar()
+					.getValue()) {
+				
+				System.out.print(arg0.getPoint().y);
+				this.scroller.getVerticalScrollBar().setValue(
+						this.scroller.getVerticalScrollBar().getValue()
+								+ Math.min(-5, Math.max(arg0.getPoint().y
+										- this.scroller.getVerticalScrollBar()
+												.getValue(), -500)));
+			}
+			if ((this.selectionEnd<this.selectionStart?getSelectionYEnds().x+this.getFontMetrics(this.getFont())
+					.getHeight():getSelectionYEnds().y) > this.scroller.getVerticalScrollBar()
+					.getValue()
+					+ this.scroller.getVerticalScrollBar().getVisibleAmount()) {
+				this.scroller.getVerticalScrollBar().setValue(
+						this.scroller.getVerticalScrollBar().getValue()
+								+ Math.max(5, Math.min(arg0.getPoint().y
+										- this.scroller.getVerticalScrollBar()
+												.getValue()-this.scroller.getVerticalScrollBar().getVisibleAmount(), 500)));
+			}
+		}
 	}
 
 	public int getTextPosFromCursor(MouseEvent arg0) {
 		int select = 0;
 		FontMetrics fm = this.getFontMetrics(this.getFont());
 		int line = 1;
-		
+
 		double lineY = fm.getHeight();
 		int charInLine = 0;
 		double charX = 50;
@@ -419,7 +513,8 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 
 			if (new Character(c).equals(new Character('\n'))) {
 				line++;
-				charDX = (int) (charX + this.getMargin().left + this.getInsets().left);
+				charDX = (int) (charX + this.getMargin().left + this
+						.getInsets().left);
 				charDY = (int) (lineY + this.getMargin().top - fm.getHeight() / 2);
 				distY = Math.abs(arg0.getY() - charDY);
 				dist = Math.abs(arg0.getX() - charDX);
@@ -436,7 +531,8 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 				}
 				lineY += fm.getHeight();
 				charX = 50;
-				charDX = (int) (charX + this.getMargin().left + this.getInsets().left);
+				charDX = (int) (charX + this.getMargin().left + this
+						.getInsets().left);
 				charDY = (int) (lineY + this.getMargin().top - fm.getHeight() / 2);
 				distY = Math.abs(arg0.getY() - charDY);
 				dist = Math.abs(arg0.getX() - charDX);
@@ -460,13 +556,15 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 				 */
 
 			} else {
-				if (charX + fm.charWidth(c) < this.getWidth() - this.getMargin().right) {
+				if (charX + fm.charWidth(c) < this.getWidth()
+						- this.getMargin().right) {
 
 				} else {
 					lineY += fm.getHeight();
 					charX = 50;
 				}
-				charDX = (int) (charX + this.getMargin().left + this.getInsets().left);
+				charDX = (int) (charX + this.getMargin().left + this
+						.getInsets().left);
 				charDY = (int) (lineY + this.getMargin().top - fm.getHeight() / 2);
 				distY = Math.abs(arg0.getY() - charDY);
 				dist = Math.abs(arg0.getX() - charDX);
@@ -510,13 +608,17 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 		// TODO Auto-generated method stub\
 
 		mousePos = arg0.getPoint();
-		mousePos.translate(-arg0.getComponent().getX(), -arg0.getComponent().getY());
+		mousePos.translate(-arg0.getComponent().getX(), -arg0.getComponent()
+				.getY());
 		this.repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE || arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+		int Tmask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		int Tkey = KeyEvent.CTRL_MASK == Tmask ? KeyEvent.VK_CONTROL : 157;
+		if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE
+				|| arg0.getKeyCode() == KeyEvent.VK_DELETE) {
 			if (selectionStart != selectionEnd) {
 				this.replaceSelection("");
 			} else {
@@ -544,21 +646,23 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 						this.selectionEnd = this.selectionStart;
 					}
 				}
-			} else if (arg0.getKeyCode() == KeyEvent.VK_SHIFT || arg0.getKeyCode() == KeyEvent.VK_CONTROL
-					|| (arg0.getKeyCode() == KeyEvent.VK_V
-							&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK)
-					|| (arg0.getKeyCode() == KeyEvent.VK_C
-							&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK)
-					|| (arg0.getKeyCode() == KeyEvent.VK_A
-							&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK)) {
+			} else if (arg0.getKeyCode() == KeyEvent.VK_SHIFT
+					|| arg0.getKeyCode() == Tkey
+					|| (arg0.getKeyCode() == KeyEvent.VK_V && (arg0
+							.getModifiers() & Tmask) == Tmask)
+					|| (arg0.getKeyCode() == KeyEvent.VK_C && (arg0
+							.getModifiers() & Tmask) == Tmask)
+					|| (arg0.getKeyCode() == KeyEvent.VK_A && (arg0
+							.getModifiers() & Tmask) == Tmask)) {
 				if (arg0.getKeyCode() == KeyEvent.VK_V
-						&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK) {
+						&& (arg0.getModifiers() & Tmask) == Tmask) {
 					Toolkit toolkit = Toolkit.getDefaultToolkit();
 					String result = "";
 
 					Clipboard clipboard = toolkit.getSystemClipboard();
 					try {
-						result = (String) clipboard.getData(DataFlavor.stringFlavor);
+						result = (String) clipboard
+								.getData(DataFlavor.stringFlavor);
 					} catch (UnsupportedFlavorException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -569,12 +673,12 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 					this.replaceSelection(result);
 				}
 				if (arg0.getKeyCode() == KeyEvent.VK_C
-						&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK) {
+						&& (arg0.getModifiers() & Tmask) == Tmask) {
 					Toolkit toolkit = Toolkit.getDefaultToolkit();
 					String collect = "";
 
-					for (int i = Math.min(selectionStart, selectionEnd); i < Math.max(selectionStart,
-							selectionEnd); i++) {
+					for (int i = Math.min(selectionStart, selectionEnd); i < Math
+							.max(selectionStart, selectionEnd); i++) {
 						collect = collect + this.doc.doc.get(i);
 					}
 					Clipboard clipboard = toolkit.getSystemClipboard();
@@ -583,28 +687,37 @@ public class CodePane extends JPanel implements MouseListener, MouseMotionListen
 
 				}
 				if (arg0.getKeyCode() == KeyEvent.VK_A
-						&& (arg0.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK) {
+						&& (arg0.getModifiers() & Tmask) == Tmask) {
 					this.selectionStart = 0;
 					this.selectionEnd = this.doc.doc.size();
 
 				}
 			} else {
-				//System.out.println(arg0.getModifiers() & KeyEvent.CTRL_MASK);
-				// System.out.println(arg0.);
+				// System.out.println(arg0.getModifiers() & KeyEvent.CTRL_MASK);
+				System.out.println(arg0.getKeyCode());
+
 				this.replaceSelection(arg0.getKeyChar() + "");
 				this.repaint();
-				if(this.scroller!=null){
-					System.out.println(this.scroller.getVerticalScrollBar().getVisibleAmount());
-				if(getSelectionYEnds().x<this.scroller.getVerticalScrollBar().getValue()){
-					this.scroller.getVerticalScrollBar().setValue(getSelectionYEnds().x);
-				}
-				if(getSelectionYEnds().y>this.scroller.getVerticalScrollBar().getValue()+this.scroller.getVerticalScrollBar().getVisibleAmount()){
-					this.scroller.getVerticalScrollBar().setValue(getSelectionYEnds().y -this.getFontMetrics(this.getFont()).getHeight());
-				}
+				if (this.scroller != null) {
+					System.out.println(this.scroller.getVerticalScrollBar()
+							.getVisibleAmount());
+					if (getSelectionYEnds().x < this.scroller
+							.getVerticalScrollBar().getValue()) {
+						this.scroller.getVerticalScrollBar().setValue(
+								getSelectionYEnds().x);
+					}
+					if (getSelectionYEnds().y > this.scroller
+							.getVerticalScrollBar().getValue()
+							+ this.scroller.getVerticalScrollBar()
+									.getVisibleAmount()) {
+						this.scroller.getVerticalScrollBar().setValue(
+								getSelectionYEnds().y
+										- this.getFontMetrics(this.getFont())
+												.getHeight());
+					}
 				}
 			}
 		}
-		
 
 	}
 

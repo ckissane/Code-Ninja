@@ -11,8 +11,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -28,6 +32,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -48,11 +53,17 @@ public class Main extends JFrame implements ActionListener {
 		// ArrayList<JMenuItem> FileItems= new ArrayList<JMenuItem>();
 		JMenu fileMenu = new JMenu("File");
 		JMenuItem newPattern = new CMenuItem("New");
-		newPattern.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		newPattern.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit
+				.getDefaultToolkit().getMenuShortcutKeyMask()));
 		newPattern.setActionCommand("newFile");
 		newPattern.addActionListener(this);
 		fileMenu.add(newPattern);
+		JMenuItem run = new CMenuItem("Run");
+		run.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit
+				.getDefaultToolkit().getMenuShortcutKeyMask()));
+		run.setActionCommand("run");
+		run.addActionListener(this);
+		fileMenu.add(run);
 		// fileMenu.addSeparator();
 		JMenuItem openPattern = new CMenuItem("Open");
 		openPattern.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
@@ -61,8 +72,8 @@ public class Main extends JFrame implements ActionListener {
 		openPattern.addActionListener(this);
 		fileMenu.add(openPattern);
 		JMenuItem save = new CMenuItem("Save");
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit
+				.getDefaultToolkit().getMenuShortcutKeyMask()));
 		save.setActionCommand("save");
 		save.addActionListener(this);
 		fileMenu.add(save);
@@ -186,18 +197,100 @@ public class Main extends JFrame implements ActionListener {
 		byte[] encoded = Files.readAllBytes(f.toPath());
 		return new String(encoded, encoding);
 	}
+
 	static void saveFile(File f, String data) throws IOException {
 		Files.write(f.toPath(), data.getBytes(), new OpenOption[0]);
-		
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		if (event.getActionCommand().equals("run")) {
+			// String prg = "import sys";
+
+			/*if (true) {
+				JFileChooser fileChoose = new JFileChooser();
+				JFrame j = new JFrame();
+				j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				if (this.openFilePath != null) {
+					fc.setCurrentDirectory(this.openFilePath.toFile());
+
+					fc.setSelectedFile(this.openFilePath.toFile());
+
+				}
+				// fc.setName("fractal.png");
+				int returnVal = fc.showSaveDialog(j);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					try {
+						String collect = "";
+
+						for (int i = 0; i < this.editor.doc.doc.size(); i++) {
+							collect = collect + this.editor.doc.doc.get(i);
+						}
+						saveFile(file, collect);
+						openFilePath = file.toPath();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					// println("saving: " + file.getName() + "," +
+					// file.getPath() +
+					// ".");
+					// saveImage(this.image, file.getPath());
+				} else {
+					// println("Save command cancelled by user.");
+				}
+			}*/
+			String collect = "";
+
+			for (int i = 0; i < this.editor.doc.doc.size(); i++) {
+				collect = collect + this.editor.doc.doc.get(i);
+			}
+			JFrame j = new JFrame();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			double width = screenSize.getWidth();
+			double height = screenSize.getHeight();
+			j.setSize((int) width / 2, (int) height / 2);
+			j.setLocationRelativeTo(null);
+			j.setVisible(true);
+			j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			JTextArea jt = new JTextArea();
+			j.add(jt);
+			PrintStream con = new PrintStream(new TextAreaOutputStream(jt));
+			// p.getOutputStream().
+
+			System.setOut(con);
+			System.setErr(con);
+			// System.out.print(b);
+			Process p;
+			try {
+
+				// p = Runtime.getRuntime().exec("python\n"+collect);
+				ProcessBuilder pb = new ProcessBuilder("/usr/bin/script", "/dev/null", "/usr/bin/python");
+				
+				pb.redirectOutput(Redirect.INHERIT);
+				pb.redirectError(Redirect.INHERIT);
+				
+				p = pb.start();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		// BufferedReader in = new BufferedReader(new
+		// InputStreamReader(p.getInputStream()));
+		// String ret = in.readLine();
+		// System.out.println("value is : "+ret);
+
 		if (event.getActionCommand().equals("newFile")) {
-			this.editor.selectionStart=0;
-			this.editor.selectionEnd=0;
-			this.editor.doc.insertString(0, this.editor.doc.doc.size(),
-					"");
+			this.editor.selectionStart = 0;
+			this.editor.selectionEnd = 0;
+			this.editor.doc.insertString(0, this.editor.doc.doc.size(), "");
 			openFilePath = null;
 		}
 		if (event.getActionCommand().equals("save")) {
@@ -208,9 +301,9 @@ public class Main extends JFrame implements ActionListener {
 			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			if (this.openFilePath != null) {
 				fc.setCurrentDirectory(this.openFilePath.toFile());
-				
+
 				fc.setSelectedFile(this.openFilePath.toFile());
-				
+
 			}
 			// fc.setName("fractal.png");
 			int returnVal = fc.showSaveDialog(j);
@@ -222,7 +315,7 @@ public class Main extends JFrame implements ActionListener {
 					for (int i = 0; i < this.editor.doc.doc.size(); i++) {
 						collect = collect + this.editor.doc.doc.get(i);
 					}
-						saveFile(file, collect);
+					saveFile(file, collect);
 					openFilePath = file.toPath();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -246,12 +339,12 @@ public class Main extends JFrame implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				try {
-					this.editor.selectionStart=0;
-					this.editor.selectionEnd=0;
+					this.editor.selectionStart = 0;
+					this.editor.selectionEnd = 0;
 					this.editor.doc.insertString(0, this.editor.doc.doc.size(),
 							readFile(file, Charset.defaultCharset()));
 					openFilePath = file.toPath();
-					
+
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

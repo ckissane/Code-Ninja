@@ -2,6 +2,7 @@ package program;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
+
 import java.awt.*;
 
 /**
@@ -13,7 +14,7 @@ public class LightScrollPane extends JComponent {
     private static final int SCROLL_BAR_ALPHA = 100;
     private static final int THUMB_BORDER_SIZE = 2;
     private static final int THUMB_SIZE = 8;
-    private static final Color THUMB_COLOR = Color.BLACK;
+    private static final Color THUMB_COLOR = Color.decode("#268bd2");
 
     public final JScrollPane scrollPane;
     private final JScrollBar verticalScrollBar;

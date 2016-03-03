@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/boys/Desktop/jep/build/lib.macosx-10.10-intel-2.7"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="jython-standalone-2.7.0.jar"/>
+	<classpathentry kind="lib" path="RSyntaxTextArea.jar"/>
+	<classpathentry kind="lib" path="jep-3.4.3.jar" sourcepath="jep.src-3.4.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

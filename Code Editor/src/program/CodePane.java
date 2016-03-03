@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.accessibility.AccessibleContext;
@@ -44,8 +45,14 @@ public class CodePane extends JPanel implements MouseListener,
 	public int selectionStart = 0;
 	public int selectionEnd = 0;
 	private BlinkTimer cursorTimer = new BlinkTimer(500, this);
+	// private BlinkTimer cursorTimer = new BlinkTimer(500, this);
 	public Point mousePos = new Point(0, 0);
+	public int caretPosInLine = 0;
+	public int charInLine = 0;
 	public JScrollPane scroller;
+	public int language = Language.PYTHON;
+	private SyntaxHighlighter syntax = new SyntaxHighlighter(language);
+	private ArrayList<Color> coloring = syntax.parse(doc.doc);
 
 	public Insets getMargin() {
 		return new Insets(5, 5, 5, 5);
@@ -72,7 +79,7 @@ public class CodePane extends JPanel implements MouseListener,
 		// g.drawLine(0,0,mousePos.x,mousePos.y);
 		int line = 1;
 		double lineY = this.getFontMetrics(this.getFont()).getHeight();
-		int charInLine = 0;
+		int caretPosInLine = 0;
 		int maxLine = 0;
 		double charX = 50;
 
@@ -182,6 +189,7 @@ public class CodePane extends JPanel implements MouseListener,
 	}
 
 	public CodePane() {
+		this.doc.insertString(0, 0, "for i in range(10):\n    print(i)");
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment
 					.getLocalGraphicsEnvironment();
@@ -204,6 +212,7 @@ public class CodePane extends JPanel implements MouseListener,
 		this.enableInputMethods(true);
 		this.setFocusable(true);
 		this.setAutoscrolls(true);
+		this.setFocusTraversalKeysEnabled(false);
 
 	}
 
@@ -225,6 +234,7 @@ public class CodePane extends JPanel implements MouseListener,
 	}
 
 	public void paint(Graphics g) {
+		coloring = syntax.parse(doc.doc);
 		double lineStartY = this.getMargin().top
 				+ this.getFontMetrics(this.getFont()).getDescent();
 		boolean selectedLine = false;
@@ -343,8 +353,8 @@ public class CodePane extends JPanel implements MouseListener,
 							.getFontMetrics().charWidth(c), g2.getFontMetrics()
 							.getHeight());
 				}
-				g2.setColor(Color.decode("#657b83"));
-
+				// g2.setColor(Color.decode("#657b83"));
+				g2.setColor(coloring.get(i));
 				g2.drawString(
 						c + "",
 						(int) (charX + this.getMargin().left + this.getInsets().left),
@@ -390,13 +400,13 @@ public class CodePane extends JPanel implements MouseListener,
 			selectedLine = false;
 		}
 		g2.setColor(Color.decode("#657b83"));
-		if (cursorTimer.value == 1) {
+		if (cursorTimer.value == 1 && this.isFocusOwner()) {
 			g2.fillRect(caretPos.x, caretPos.y, 2, g2.getFontMetrics()
 					.getHeight());
 		}
 		this.setPreferredSize(new Dimension(100, Math.max(
-				(int) (lineY + this.getMargin().top + this.getMargin().bottom),
-				100)));
+				(int) (lineY + this.getMargin().bottom*2+this.getInsets().bottom+ g2
+						.getFontMetrics().getDescent()), 100)));
 		this.revalidate();
 
 		// this.getParent().p
@@ -417,8 +427,9 @@ public class CodePane extends JPanel implements MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-
-		this.repaint();
+		this.grabFocus();
+		this.requestFocusInWindow();
+		
 	}
 
 	@Override
@@ -435,8 +446,11 @@ public class CodePane extends JPanel implements MouseListener,
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
+		this.grabFocus();
+		this.requestFocusInWindow();
 		this.selectionEnd = getTextPosFromCursor(arg0);
 		this.selectionStart = this.selectionEnd;
+		this.caretPosInLine=this.doc.whatPosInLineHasPos(this.selectionEnd);
 		this.repaint();
 	}
 
@@ -444,23 +458,27 @@ public class CodePane extends JPanel implements MouseListener,
 	public void mouseReleased(MouseEvent arg0) {
 
 		this.selectionEnd = getTextPosFromCursor(arg0);
+		this.caretPosInLine=this.doc.whatPosInLineHasPos(this.selectionEnd);
 		this.repaint();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
 		this.selectionEnd = getTextPosFromCursor(arg0);
+		this.caretPosInLine=this.doc.whatPosInLineHasPos(this.selectionEnd);
 		this.repaint();
-		this.repaint();
+		
 		if (this.scroller != null) {
 			System.out.println(this.scroller.getVerticalScrollBar()
 					.getVisibleAmount());
-			int selectionEndY=this.selectionEnd<this.selectionStart?getSelectionYEnds().x:getSelectionYEnds().y-this.getFontMetrics(this.getFont())
-					.getHeight();
-			if ((this.selectionEnd<this.selectionStart?getSelectionYEnds().x:getSelectionYEnds().y-this.getFontMetrics(this.getFont())
-					.getHeight()) < this.scroller.getVerticalScrollBar()
-					.getValue()) {
-				
+			int selectionEndY = this.selectionEnd < this.selectionStart ? getSelectionYEnds().x
+					: getSelectionYEnds().y
+							- this.getFontMetrics(this.getFont()).getHeight();
+			if ((this.selectionEnd < this.selectionStart ? getSelectionYEnds().x
+					: getSelectionYEnds().y
+							- this.getFontMetrics(this.getFont()).getHeight()) < this.scroller
+					.getVerticalScrollBar().getValue()) {
+
 				System.out.print(arg0.getPoint().y);
 				this.scroller.getVerticalScrollBar().setValue(
 						this.scroller.getVerticalScrollBar().getValue()
@@ -468,15 +486,18 @@ public class CodePane extends JPanel implements MouseListener,
 										- this.scroller.getVerticalScrollBar()
 												.getValue(), -500)));
 			}
-			if ((this.selectionEnd<this.selectionStart?getSelectionYEnds().x+this.getFontMetrics(this.getFont())
-					.getHeight():getSelectionYEnds().y) > this.scroller.getVerticalScrollBar()
-					.getValue()
+			if ((this.selectionEnd < this.selectionStart ? getSelectionYEnds().x
+					+ this.getFontMetrics(this.getFont()).getHeight()
+					: getSelectionYEnds().y) > this.scroller
+					.getVerticalScrollBar().getValue()
 					+ this.scroller.getVerticalScrollBar().getVisibleAmount()) {
 				this.scroller.getVerticalScrollBar().setValue(
 						this.scroller.getVerticalScrollBar().getValue()
 								+ Math.max(5, Math.min(arg0.getPoint().y
 										- this.scroller.getVerticalScrollBar()
-												.getValue()-this.scroller.getVerticalScrollBar().getVisibleAmount(), 500)));
+												.getValue()
+										- this.scroller.getVerticalScrollBar()
+												.getVisibleAmount(), 500)));
 			}
 		}
 	}
@@ -613,12 +634,13 @@ public class CodePane extends JPanel implements MouseListener,
 		this.repaint();
 	}
 
-	@Override
-	public void keyPressed(KeyEvent arg0) {
+	public void keyPressedFlip(KeyEvent arg0, boolean fake) {
+
 		int Tmask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		int Tkey = KeyEvent.CTRL_MASK == Tmask ? KeyEvent.VK_CONTROL : 157;
 		if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE
 				|| arg0.getKeyCode() == KeyEvent.VK_DELETE) {
+
 			if (selectionStart != selectionEnd) {
 				this.replaceSelection("");
 			} else {
@@ -628,9 +650,11 @@ public class CodePane extends JPanel implements MouseListener,
 				}
 			}
 		} else {
+			
 			if (arg0.getKeyCode() == KeyEvent.VK_LEFT) {
 				if (selectionStart != selectionEnd) {
-					this.selectionEnd = this.selectionStart;
+					this.selectionEnd = Math.min(this.selectionStart,this.selectionEnd);
+					this.selectionStart = this.selectionEnd;
 				} else {
 					if (this.selectionStart > 0) {
 						this.selectionStart--;
@@ -639,20 +663,51 @@ public class CodePane extends JPanel implements MouseListener,
 				}
 			} else if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
 				if (selectionStart != selectionEnd) {
-					this.selectionEnd = this.selectionStart;
+					this.selectionEnd = Math.max(this.selectionStart,this.selectionEnd);
+					this.selectionStart = this.selectionEnd;
 				} else {
 					if (this.selectionStart < this.doc.doc.size()) {
 						this.selectionStart++;
 						this.selectionEnd = this.selectionStart;
 					}
 				}
+			} else if (arg0.getKeyCode() == KeyEvent.VK_UP) {
+				if (selectionStart != selectionEnd) {
+					this.selectionEnd = Math.min(this.selectionStart,this.selectionEnd);
+					this.selectionStart = this.selectionEnd;
+				} else {
+					
+					if (this.selectionStart > 0) {
+						if (this.doc.whatLineHasPos(this.selectionStart) > 0) {
+							System.out.println("line of is:"+this.doc.whatLineHasPos(this.selectionStart));
+							this.selectionStart=this.doc.posForPosInLine(this.caretPosInLine,this.doc.whatLineHasPos(this.selectionStart)-1);
+							this.selectionEnd = this.selectionStart;
+						}
+					}
+				}
+			} else if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
+				if (selectionStart != selectionEnd) {
+					this.selectionEnd = Math.max(this.selectionStart,this.selectionEnd);
+					this.selectionStart = this.selectionEnd;
+				} else {
+					if (this.selectionStart < this.doc.doc.size()) {
+						if (this.doc.whatLineHasPos(this.selectionStart) < this.doc.lineCount()-1) {
+							this.selectionStart=this.doc.posForPosInLine(this.caretPosInLine,this.doc.whatLineHasPos(this.selectionStart)+1);
+							this.selectionEnd = this.selectionStart;
+						}
+					}
+					
+				}
 			} else if (arg0.getKeyCode() == KeyEvent.VK_SHIFT
+					|| arg0.getKeyCode() == KeyEvent.VK_TAB
 					|| arg0.getKeyCode() == Tkey
 					|| (arg0.getKeyCode() == KeyEvent.VK_V && (arg0
 							.getModifiers() & Tmask) == Tmask)
 					|| (arg0.getKeyCode() == KeyEvent.VK_C && (arg0
 							.getModifiers() & Tmask) == Tmask)
 					|| (arg0.getKeyCode() == KeyEvent.VK_A && (arg0
+							.getModifiers() & Tmask) == Tmask)
+					|| (arg0.getKeyCode() == KeyEvent.VK_R && (arg0
 							.getModifiers() & Tmask) == Tmask)) {
 				if (arg0.getKeyCode() == KeyEvent.VK_V
 						&& (arg0.getModifiers() & Tmask) == Tmask) {
@@ -671,6 +726,31 @@ public class CodePane extends JPanel implements MouseListener,
 						e.printStackTrace();
 					}
 					this.replaceSelection(result);
+				}
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					this.replaceSelection("    " + "");
+					this.repaint();
+					if (this.scroller != null) {
+						System.out.println(this.scroller.getVerticalScrollBar()
+								.getVisibleAmount());
+						if (getSelectionYEnds().x < this.scroller
+								.getVerticalScrollBar().getValue()) {
+							this.scroller.getVerticalScrollBar().setValue(
+									getSelectionYEnds().x);
+						}
+						if (getSelectionYEnds().y > this.scroller
+								.getVerticalScrollBar().getValue()
+								+ this.scroller.getVerticalScrollBar()
+										.getVisibleAmount()) {
+							this.scroller.getVerticalScrollBar()
+									.setValue(
+											getSelectionYEnds().y
+													- this.getFontMetrics(
+															this.getFont())
+															.getHeight());
+						}
+					}
+
 				}
 				if (arg0.getKeyCode() == KeyEvent.VK_C
 						&& (arg0.getModifiers() & Tmask) == Tmask) {
@@ -694,7 +774,7 @@ public class CodePane extends JPanel implements MouseListener,
 				}
 			} else {
 				// System.out.println(arg0.getModifiers() & KeyEvent.CTRL_MASK);
-				System.out.println(arg0.getKeyCode());
+				// System.out.println(arg0.getKeyCode());
 
 				this.replaceSelection(arg0.getKeyChar() + "");
 				this.repaint();
@@ -716,13 +796,33 @@ public class CodePane extends JPanel implements MouseListener,
 												.getHeight());
 					}
 				}
+				if (new Character('\n').equals(arg0.getKeyChar())) {
+					int tabStore = this.doc.tabsForLineForPos(selectionEnd - 1);
+					for (int i = 0; i < tabStore; i++) {
+						this.replaceSelection("    ");
+					}
+				}
+				if (!fake) {
+
+				}
 			}
 		}
+		if(!(arg0.getKeyCode() == KeyEvent.VK_UP||arg0.getKeyCode() == KeyEvent.VK_DOWN)){
+			this.caretPosInLine=this.doc.whatPosInLineHasPos(this.selectionEnd);
+		}
+
+	}
+
+	public void keyPressed(KeyEvent arg0) {
+		int Tmask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		int Tkey = KeyEvent.CTRL_MASK == Tmask ? KeyEvent.VK_CONTROL : 157;
+		keyPressedFlip(arg0, false);
 
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
+		coloring = syntax.parse(doc.doc);
 		// TODO Auto-generated method stub
 		this.repaint();
 	}
@@ -748,6 +848,37 @@ public class CodePane extends JPanel implements MouseListener,
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			value = (value + 1) % 2;
+			this.user.repaint();
+		}
+
+	}
+
+	public class KeyTimer implements ActionListener {
+		private Timer cursorTimer;
+		public KeyEvent k;
+		public int value = 0;
+		private CodePane user;
+
+		public KeyTimer(int time, CodePane u, KeyEvent ke) {
+			k = ke;
+			cursorTimer = new Timer(time, this);
+			cursorTimer.setInitialDelay(100);
+			cursorTimer.start();
+			user = u;
+
+		}
+
+		public void setKeyEvent(KeyEvent ke) {
+			cursorTimer.stop();
+			k = ke;
+			cursorTimer.setInitialDelay(100);
+			cursorTimer.start();
+
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			user.keyPressedFlip(k, true);
 			this.user.repaint();
 		}
 
